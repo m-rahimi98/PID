@@ -20,6 +20,8 @@ from pytorch_lightning.utilities import rank_zero_info
 from ldm.data.base import Txt2ImgIterableBaseDataset
 from ldm.util import instantiate_from_config
 
+from pytorch_lightning.profiler import SimpleProfiler
+
 
 def get_parser(**parser_kwargs):
     def str2bool(v):
@@ -633,23 +635,23 @@ if __name__ == "__main__":
             callbacks_cfg = OmegaConf.create()
 
         # if 'metrics_over_trainsteps_checkpoint' in callbacks_cfg:
-        if True:
-            print(
-                'Caution: Saving checkpoints every n train steps without deleting. This might require some free space.')
-            default_metrics_over_trainsteps_ckpt_dict = {
-                'metrics_over_trainsteps_checkpoint':
-                    {"target": 'pytorch_lightning.callbacks.ModelCheckpoint',
-                     'params': {
-                         "dirpath": os.path.join(ckptdir, 'trainstep_checkpoints'),
-                         "filename": "{epoch:06}-{step:09}",
-                         "verbose": True,
-                         'save_top_k': -1,
-                         'every_n_train_steps': 10000,
-                         'save_weights_only': True
-                     }
-                     }
-            }
-            default_callbacks_cfg.update(default_metrics_over_trainsteps_ckpt_dict)
+        # if True:
+        #     print(
+        #         'Caution: Saving checkpoints every n train steps without deleting. This might require some free space.')
+        #     default_metrics_over_trainsteps_ckpt_dict = {
+        #         'metrics_over_trainsteps_checkpoint':
+        #             {"target": 'pytorch_lightning.callbacks.ModelCheckpoint',
+        #              'params': {
+        #                  "dirpath": os.path.join(ckptdir, 'trainstep_checkpoints'),
+        #                  "filename": "{epoch:06}-{step:09}",
+        #                  "verbose": True,
+        #                  'save_top_k': -1,
+        #                  'every_n_train_steps': 10000,
+        #                  'save_weights_only': True
+        #              }
+        #              }
+        #     }
+        #     default_callbacks_cfg.update(default_metrics_over_trainsteps_ckpt_dict)
 
         callbacks_cfg = OmegaConf.merge(default_callbacks_cfg, callbacks_cfg)
         if 'ignore_keys_callback' in callbacks_cfg and hasattr(trainer_opt, 'resume_from_checkpoint'):
@@ -659,7 +661,7 @@ if __name__ == "__main__":
 
         trainer_kwargs["callbacks"] = [instantiate_from_config(callbacks_cfg[k]) for k in callbacks_cfg]
 
-        from pytorch_lightning.profiler import SimpleProfiler
+
 
         trainer = Trainer.from_argparse_args(trainer_opt,
                                              **trainer_kwargs,
