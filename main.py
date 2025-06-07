@@ -570,11 +570,13 @@ if __name__ == "__main__":
             "target": "pytorch_lightning.callbacks.ModelCheckpoint",
             "params": {
                 "dirpath": ckptdir,
-                "filename": "8",
+                "filename": "last",   # optional: nicer filename
                 "verbose": True,
-                "save_last": True,
+                "save_top_k": 0,      # 🔥 kill best‐k saving
+                "save_last": True,    # only last.ckpt lives
             }
         }
+
         if hasattr(model, "monitor"):
             print(f"Monitoring {model.monitor} as checkpoint metric.")
             default_modelckpt_cfg["params"]["monitor"] = model.monitor
