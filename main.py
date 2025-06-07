@@ -659,7 +659,12 @@ if __name__ == "__main__":
 
         trainer_kwargs["callbacks"] = [instantiate_from_config(callbacks_cfg[k]) for k in callbacks_cfg]
 
-        trainer = Trainer.from_argparse_args(trainer_opt, **trainer_kwargs)
+        from pytorch_lightning.profiler import SimpleProfiler
+
+        trainer = Trainer.from_argparse_args(trainer_opt,
+                                             **trainer_kwargs,
+                                             profiler=SimpleProfiler(filename="profiling.txt", dirpath=logdir)
+                                             )
         trainer.logdir = logdir  ###
 
         # data
@@ -720,11 +725,21 @@ if __name__ == "__main__":
         if opt.train:
             try:
                 trainer.fit(model, data)
+        
+                # ─── POST-FIT CLEANUP ─────────────────────────────
+                import glob, os
+                # delete all the versioned last-v*.ckpt files
+                for f in glob.glob(os.path.join(ckptdir, "last-*.ckpt")):
+                    os.remove(f)
+                # ────────────────────────────────────────────────────
+        
             except Exception:
                 melk()
                 raise
+        
         if not opt.no_test and not trainer.interrupted:
             trainer.test(model, data)
+
     except Exception:
         if opt.debug and trainer.global_rank == 0:
             try:
