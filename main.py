@@ -22,17 +22,6 @@ from ldm.util import instantiate_from_config
 
 from pytorch_lightning.profiler import SimpleProfiler
 
-
-
-""""""""""""""""""""""""""""""""""""
-import torch
-from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
-
-# whitelist کردن ModelCheckpoint برای torch.load with weights_only=True
-torch.serialization.add_safe_globals([ModelCheckpoint])
-""""""""""""""""""""""""""""""""""""
-
-
 def get_parser(**parser_kwargs):
     def str2bool(v):
         if isinstance(v, bool):
